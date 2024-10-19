@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 import torch
+import shutil
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLO root directory
@@ -194,15 +195,14 @@ def run(
     for one_object in detection_list:
         int_one_object = []
         for i in range(len(one_object)):
-            if i == 4:
+            if i == 4: # i==4 是機率conf
                 int_one_object.append(float(one_object[i].item()))
-            else:
+            else: #其他的是xyxy, class
                 int_one_object.append(int(one_object[i].item()))
         int_detection_list.append(int_one_object)
-    
+    # print(int_detection_list)
     columns_header = ["x1", "y1", "x2", "y2", "conf", "class"]
     df_output = pd.DataFrame(int_detection_list, columns=columns_header)
-
     return df_output
 
 
@@ -214,19 +214,20 @@ def parse_opt(weight_path, image_path):
     parser.add_argument('--source', type=str, default=image_path, help='file/dir/URL/glob/screen/0(webcam)')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
-    parser.add_argument('--conf-thres', type=float, default=0.5, help='confidence threshold') #依據辨識機率判斷是否為辨識物件
+    parser.add_argument('--conf-thres', type=float, default=0.1, help='confidence threshold') #依據辨識機率判斷是否為辨識物件
     parser.add_argument('--iou-thres', type=float, default=0.5, help='NMS IoU threshold') #依據辨識物件重疊面積判斷是否為重複辨識
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
     # parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
-    parser.add_argument('--device', default="cpu", help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    # parser.add_argument('--device', default="cpu", help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    parser.add_argument('--device', default=0, help='cuda device, i.e. 0 or 0,1,2,3 or cpu') #設定CPU or GPU
     parser.add_argument('--view-img', action='store_true', help='show results')
-    # parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
-    parser.add_argument('--save-txt', default=False, action='store_true', help='save results to *.txt')
-    # parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
-    parser.add_argument('--save-conf', default=True, action='store_true', help='save confidences in --save-txt labels')
+    # parser.add_argument('--save-txt', action='store_true', help='save results to *.txt') #儲存lable資料
+    parser.add_argument('--save-txt', default=True, action='store_true', help='save results to *.txt')
+    # parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels') #儲存lable的機率
+    parser.add_argument('--save-conf', default=False, action='store_true', help='save confidences in --save-txt labels')
     parser.add_argument('--save-crop', action='store_true', help='save cropped prediction boxes')
-    # parser.add_argument('--nosave', action='store_true', help='do not save images/videos')
-    parser.add_argument('--nosave', action='store_false', help='do not save images/videos')
+    parser.add_argument('--nosave', action='store_true', help='do not save images/videos') #儲存辨識後的照片
+    # parser.add_argument('--nosave', action='store_false', help='do not save images/videos')
     parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
@@ -252,11 +253,10 @@ def main(weight_path, image_path):
     # check_requirements(exclude=('tensorboard', 'thop'))
     opt = parse_opt(weight_path, image_path)
     detection_df = run(**vars(opt))
-    # print(detection_list)
     return detection_df
 
 
 if __name__ == "__main__":
-    weight_path = r"E:\1082_蔡孟軒\B2408_裂縫尺\g2408_ai_gap_meter_model\yolov9_gap_meter\weights\best_gap_meter_20240903.pt"
-    image_path = r"E:\1082_蔡孟軒\B2408_裂縫尺\g2408_ai_gap_meter_model\test_image\IMG_1482.JPG"
+    weight_path = r"E:\1082_mhtsai\B2408_AI_lable_tool\yolov9\weights\gape_meter_gelan-m_20240911.pt"
+    image_path = r"E:\1082_mhtsai\B2408_AI_lable_tool\test_image\IMG_2650.JPG"
     main(weight_path, image_path)
