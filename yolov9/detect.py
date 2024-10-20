@@ -224,7 +224,7 @@ def parse_opt(weight_path, image_path):
     # parser.add_argument('--save-txt', action='store_true', help='save results to *.txt') #儲存lable資料
     parser.add_argument('--save-txt', default=True, action='store_true', help='save results to *.txt')
     # parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels') #儲存lable的機率
-    parser.add_argument('--save-conf', default=False, action='store_true', help='save confidences in --save-txt labels')
+    parser.add_argument('--save-conf', default=True, action='store_true', help='save confidences in --save-txt labels')
     parser.add_argument('--save-crop', action='store_true', help='save cropped prediction boxes')
     parser.add_argument('--nosave', action='store_true', help='do not save images/videos') #儲存辨識後的照片
     # parser.add_argument('--nosave', action='store_false', help='do not save images/videos')
